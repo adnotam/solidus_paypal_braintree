@@ -9,14 +9,15 @@ module SolidusPaypalBraintree
     validates :nonce, presence: true
     validates :payment_method, presence: true
     validates :payment_type, presence: true
-    validates :phone, presence: true
+    # validates :phone, presence: true # We don't have the phone field from paypal response
     validates :email, presence: true
 
     validate do
       unless payment_method.is_a? SolidusPaypalBraintree::Gateway
         errors.add(:payment_method, 'Must be braintree')
       end
-      if address && !address.valid?
+      # TODO: use a configuration option to allow editing the address
+      if address && !address.valid? && false
         address.errors.each do |field, error|
           errors.add(:address, "#{field} #{error}")
         end

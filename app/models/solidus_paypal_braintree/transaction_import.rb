@@ -39,12 +39,13 @@ module SolidusPaypalBraintree
       if valid?
         order.email = user.try!(:email) || transaction.email
 
-        if address
-          order.shipping_address = order.billing_address = address
-          # work around a bug in most solidus versions
-          # about tax zone cachine between address changes
-          order.instance_variable_set("@tax_zone", nil)
-        end
+        # Don't overwrite the addresses of the order
+        # if address
+        #   order.shipping_address = order.billing_address = address
+        #   # work around a bug in most solidus versions
+        #   # about tax zone cachine between address changes
+        #   order.instance_variable_set("@tax_zone", nil)
+        # end
 
         payment = order.payments.new source: source,
           payment_method: transaction.payment_method,
@@ -59,9 +60,11 @@ module SolidusPaypalBraintree
     end
 
     def address
-      transaction.address && transaction.address.to_spree_address.tap do |address|
-        address.phone = transaction.phone
-      end
+      order.billing_address
+      # Use the billing address of the order
+      # transaction.address && transaction.address.to_spree_address.tap do |address|
+      #   address.phone = transaction.phone
+      # end
     end
 
     def state_before_current?(state)
